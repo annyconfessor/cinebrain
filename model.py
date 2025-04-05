@@ -1,21 +1,30 @@
 import torch
 import torch.nn as nn
+import torch.optim as optim
+from config import X
 
-class SimpleNN(nn.Module):
-    def __init__(self, input_size, num_classes):
-        super(SimpleNN, self).__init__()
-        self.fc1 = nn.Linear(input_size, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 32)
-        self.fc4 = nn.Linear(32, num_classes)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.3)
-    
-    def forward(self, x):
-        x = self.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = self.relu(self.fc2(x))
-        x = self.dropout(x)
-        x = self.relu(self.fc3(x))
-        x = self.fc4(x)
-        return x
+class RecommendedMovies(nn.Module):
+  def __init__(self, input_size):
+    super(RecommendedMovies, self).__init__()
+    self.fc = nn.Sequential(
+      nn.Linear(input_size, 16),
+      nn.ReLU(),
+      nn.Linear(16,1)
+    )
+
+  def forward(self, x):
+    return self.fc(x)
+  
+model = RecommendedMovies(X.shape[1])
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(),lr=0.01)
+
+for epoch in range(100):
+  optimizer.zero_grad()
+  outputs = model(X)
+  loss = criterion(outputs, X)
+  loss.backward()
+  optimizer.step()
+  if epoch % 10 == 0:
+    print(f"Epoch {epoch}, Loss: {loss.item():4f}")
+  
