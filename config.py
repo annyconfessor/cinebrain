@@ -10,7 +10,7 @@ data = r.json()['results']
 movies = [{'title': m['title'], 'rating': m['vote_average'], 'genres': m['genre_ids']} for m in data]
 df = pd.DataFrame(movies)
 
-# Codificando gêneros como features binárias para o pytorch poder entender
+# gêneros como features binárias para o pytorch poder entender
 from sklearn.preprocessing import MultiLabelBinarizer
 mlb = MultiLabelBinarizer()
 genre_features = mlb.fit_transform(df['genres'])
@@ -20,3 +20,5 @@ df_final = pd.concat([genre_df, df['rating']], axis=1)
 
 X = torch.tensor(df_final.drop(columns=['rating']).values, dtype=torch.float32)
 y = torch.tensor(df_final['rating'].values, dtype=torch.float32).view(-1, 1)
+
+# results[0] if results else None
