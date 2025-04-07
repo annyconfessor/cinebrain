@@ -4,24 +4,18 @@ import torch
 
 API_KEY = 'bad4a878b132ffdf9c7132503dc21bc8'
 url = f"https://api.themoviedb.org/3/movie/popular?api_key={API_KEY}&language=pt-BR&page=1"
+r = requests.get(url)
+data = r.json()['results']
 
-response = requests.get(url)
-data = response.json()
-
-for movie in data['results']:
-  print(movie['title'], movie['vote_average'], movie['genre_ids'])
-  print('movies')
-
-movies = [{'title': m['title'], 'rating': m['vote_average'], 'genres': m['genre_ids']} for m in data['results']]
+movies = [{'title': m['title'], 'rating': m['vote_average'], 'genres': m['genre_ids']} for m in data]
 df = pd.DataFrame(movies)
 
-# Codificando gêneros como features binárias
+# Codificando gêneros como features binárias para o pytorch poder entender
 from sklearn.preprocessing import MultiLabelBinarizer
 mlb = MultiLabelBinarizer()
 genre_features = mlb.fit_transform(df['genres'])
 genre_df = pd.DataFrame(genre_features, columns=mlb.classes_)
 
-# Concatenar com a nota
 df_final = pd.concat([genre_df, df['rating']], axis=1)
 
 X = torch.tensor(df_final.drop(columns=['rating']).values, dtype=torch.float32)
