@@ -9,11 +9,12 @@ class RecommendedMovies(nn.Module):
     self.fc = nn.Sequential(
       nn.Linear(input_size, 16),
       nn.ReLU(),
-      nn.Linear(16,1)
+      nn.Linear(16,1),
+      nn.Sigmoid()
     )
 
   def forward(self, x):
-    return self.fc(x)
+    return self.fc(x) * 10
   
 model = RecommendedMovies(X.shape[1])
 criterion = nn.MSELoss()
